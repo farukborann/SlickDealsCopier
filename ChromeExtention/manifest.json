@@ -1,0 +1,17 @@
+{
+  "name": "SlickDealsCopier",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": ["scripting", "tabs", "storage", "webRequest"],
+  "background": {
+    "service_worker": "./addon/main.js"
+  },
+  "host_permissions": ["https://slickdeals.net/*", "http://localhost:4000/*"],
+  "action": {
+    "default_title": "Joom Products Helper",
+    "default_popup": "popup/popup.html"
+  },
+  "icons": {
+    "225": "assets/icon_225.png"
+  }
+}
