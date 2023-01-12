@@ -11,6 +11,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         target: { tabId: tabId },
         files: ['addon/TestPage.js']
       })
-    } 
+    }
+    else if (tab.url.includes('www.shopallo.com/wp-admin/post-new.php?post_type=deal')){
+      chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        files: ['addon/Shopallo.js']
+      })
+    }
   }
 })

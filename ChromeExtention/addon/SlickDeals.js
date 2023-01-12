@@ -41,15 +41,18 @@ const imageUrlToBase64 = async (url) => {
 
 const CopyDeal = async () => {
   let deal = {}
-
+  
   deal.title = mainColum.querySelector('div[id*="dealTitle"]>h1').innerText
   deal.price = mainColum.querySelector('div[class*="dealPrice"]').innerText
 
   let oldListPriceSpan = mainColum.querySelector('span[class*="oldListPrice"]')
   deal.oldListPrice = oldListPriceSpan ? oldListPriceSpan.innerText : ''
 
+  let buyNowButton = mainColum.querySelector('div[class*="buyNowButton"]>a')
+  deal.storeName = buyNowButton.getAttribute('data-storename')
+  deal.buyNowUrl = 'https://slickdeals.net/?tid=' + buyNowButton.getAttribute('data-product-products')
+
   deal.mainImageUrl = mainColum.querySelector('div[class*="mainImageContainer"]>a>img').src
-  deal.buyNowUrl = mainColum.querySelector('div[class*="buyNowButton"]>a').href
   deal.detailsDescription = mainColum.querySelector('div[id*="detailsDescription"]').innerHTML
   deal.cuponsLink = mainColum.querySelector('span[class*="blueprint"]>button').dataset.href
   
