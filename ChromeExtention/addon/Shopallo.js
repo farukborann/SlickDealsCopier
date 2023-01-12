@@ -23,21 +23,42 @@ function DataURIToBlob(dataURI) {
 }
 
 const LoadImage = async (b64, fileName) => {
-  let formData = new FormData()
-  formData.append('name', fileName)
-  formData.append('action', 'upload-attachment')
-  formData.append('_wpnonce', '105c5f9a43')
-  formData.append('post_id', '379')
-  formData.append('async-upload', DataURIToBlob(b64), fileName + '.jpeg')
-  
-  let result = await fetch("/wp-admin/async-upload.php",
-    {
-        body: formData,
-        method: "post"
-    }
-  )
+  let isDone = false
 
-  return await result.json()
+  var s = document.createElement('script')
+  s.src = chrome.runtime.getURL('addon/ShopalloInject.js')
+  s.onload = async function() {
+      this.remove();
+
+      let formData = new FormData()
+      formData.append('name', fileName)
+      formData.append('action', 'upload-attachment')
+      formData.append('_wpnonce', document.querySelector('div[id="wpnonce"]').getAttribute('data-value'))
+      formData.append('post_id', document.querySelector('input[id="post_ID"]').value)
+      formData.append('async-upload', DataURIToBlob(b64), fileName + '.jpeg')
+      
+      let result = await fetch("/wp-admin/async-upload.php",
+        {
+            body: formData,
+            method: "post"
+        }
+      )
+    
+      let resultJson = await result.json()
+      console.log('Image Upload Result : ')
+      console.log(resultJson)
+    
+      isDone = true;
+  };
+  (document.head || document.documentElement).appendChild(s)
+
+  const wait = () => {
+    if(!isDone) {
+      setTimeout(()=>wait(), 500)
+    }
+  }
+
+  wait()
 }
   
 
@@ -90,15 +111,18 @@ const PasteDeal = async () => {
   
     console.log('Pasted Values => ')
     console.log(deal)
+
+    pasteDealButton.disabled = true;
+    pasteDealButton.style = "border: 1px solid Gray; border-radius: 10px; width: 125px; height: 50px; background-color: #f6f6f6;"
   }, 500)
 }
 
 const AddPasteDealButton = () => {
-  let button = document.createElement('button')
-  button.style = "border: 1px solid green; border-radius: 10px; width: 125px; height: 50px; background-color: #f6f6f6;"
-  button.innerText = "Paste Deal"
-  button.type = 'button'
-  button.onclick = () => {
+  pasteDealButton = document.createElement('button')
+  pasteDealButton.style = "border: 2px solid DodgerBlue; border-radius: 10px; width: 125px; height: 50px; background-color: #f6f6f6;"
+  pasteDealButton.innerText = "Paste Deal"
+  pasteDealButton.type = 'button'
+  pasteDealButton.onclick = () => {
     PasteDeal()
   }
 
@@ -109,7 +133,7 @@ const AddPasteDealButton = () => {
 
   // let headDiv = mainForm.querySelector('div[id="headings"]>div')
   mainForm.prepend(document.createElement('br'))
-  mainForm.prepend(button)
+  mainForm.prepend(pasteDealButton)
   mainForm.prepend(document.createElement('br'))
   mainForm.prepend(alert)
 }

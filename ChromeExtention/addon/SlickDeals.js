@@ -15,29 +15,8 @@ const imageUrlToBase64 = async (url) => {
     } catch(e) {
       onError(e)
     }
-  });
-};
-
-
-// function imgToBuffer(e){
-//   fetch(e.src).then(async (res) => console.log(await res.blob()))
-//   // var imgObj = new Image()
-//   // imgObj.src = e.src
-//   // imgObj.setAttribute('crossOrigin', '')
-//   // imgObj.onload = function(){
-//   //     let cnv = document.createElement("canvas")
-
-//   //     let w = cnv.width = e.naturalWidth
-//   //     let h = cnv.height = e.naturalHeight
-//   //     // console.log('width : ' + e.naturalWidth)
-//   //     // console.log('height : ' + e.naturalHeight)
-//   //     let ctx = cnv.getContext("2d")
-//   //     ctx.drawImage(imgObj,0,0)
-    
-//   //     console.log(cnv.toDataURL())
-//   //     return ctx.getImageData(0,0,w,h)
-//   // }
-// }
+  })
+}
 
 const CopyDeal = async () => {
   let deal = {}
@@ -65,13 +44,16 @@ const CopyDeal = async () => {
 
   console.log('Copied Values => ')
   console.log(deal)
+
+  copyDealButton.disabled = true
+  copyDealButton.style = "border: 1px solid Gray; border-radius: 10px; width: 125px; height: 50px; background-color: #f6f6f6;"
 }
 
 const AddCopyDealButton = () => {
-  let button = document.createElement('button')
-  button.style = "border: 1px solid green; border-radius: 10px; width: 125px; height: 50px; background-color: #f6f6f6;"
-  button.innerText = "Copy Deal"
-  button.onclick = () => {
+  copyDealButton = document.createElement('button')
+  copyDealButton.style = "border: 2px solid DodgerBlue; border-radius: 10px; width: 125px; height: 50px; background-color: #f6f6f6;"
+  copyDealButton.innerText = "Copy Deal"
+  copyDealButton.onclick = () => {
     CopyDeal()
   }
 
@@ -82,7 +64,7 @@ const AddCopyDealButton = () => {
 
   let headDiv = mainColum.querySelector('div[id="headings"]>div')
   headDiv.appendChild(document.createElement('br'))
-  headDiv.appendChild(button)
+  headDiv.appendChild(copyDealButton)
   headDiv.appendChild(document.createElement('br'))
   headDiv.appendChild(alert)
 }
