@@ -1,4 +1,4 @@
-let mainForm
+let mainForm, pasteDealButton, deal
 
 const GetDeal = async () => {
   return (await chrome.storage.local.get(['copied_deal'])).copied_deal
@@ -23,11 +23,9 @@ function DataURIToBlob(dataURI) {
 }
 
 const LoadImage = async (b64, fileName) => {
-  let isDone = false
-
   var s = document.createElement('script')
   s.src = chrome.runtime.getURL('addon/ShopalloInject.js')
-  s.onload = async function() {
+  s.onload = function() {
       this.remove();
 
       let formData = new FormData()
@@ -37,33 +35,44 @@ const LoadImage = async (b64, fileName) => {
       formData.append('post_id', document.querySelector('input[id="post_ID"]').value)
       formData.append('async-upload', DataURIToBlob(b64), fileName + '.jpeg')
       
-      let result = await fetch("/wp-admin/async-upload.php",
+      fetch("/wp-admin/async-upload.php",
         {
             body: formData,
             method: "post"
         }
-      )
-    
-      let resultJson = await result.json()
-      console.log('Image Upload Result : ')
-      console.log(resultJson)
-    
-      isDone = true;
+      ).then(async (res) => {
+        let resultJson = await res.json()
+        console.log('Image Upload Result : ')
+        console.log(resultJson)
+      
+        SelectImage()
+      })
   };
   (document.head || document.documentElement).appendChild(s)
-
-  const wait = () => {
-    if(!isDone) {
-      setTimeout(()=>wait(), 500)
-    }
-  }
-
-  wait()
 }
+
+const SelectImage = () => {
+  let setThumbnailButton = document.querySelector('a[id="set-post-thumbnail"]')
+  setThumbnailButton.click()
+
+  WaitUntilElementLoad('div[class*="attachments-wrapper"] li', function () {
+    document.querySelector('div[class*="attachments-wrapper"] li').click()
+    document.querySelector('div[class*="media-toolbar"] button').click()
+
+    let pastedAlertDiv = document.querySelector('div[id*="pastedAlertDiv"]')
+    pastedAlertDiv.hidden = false
+    setTimeout(() => { pastedAlertDiv.hidden = true }, 3000)
   
+    console.log('Pasted Values => ')
+    console.log(deal)
+
+    pasteDealButton.disabled = true;
+    pasteDealButton.style = "border: 1px solid Gray; border-radius: 10px; width: 125px; height: 50px; background-color: #f6f6f6;"
+  }, 500)
+}
 
 const PasteDeal = async () => {
-  let deal = await GetDeal()
+  deal = await GetDeal()
 
   let titlePlaceHolder = mainForm.querySelector('label[id*="title-prompt-text"]')
   let title = mainForm.querySelector('input[id*="title"]')
@@ -76,7 +85,6 @@ const PasteDeal = async () => {
   let salesPriceInput = mainForm.querySelector('div[data-name="sale_price"] input')
   let linkInput = mainForm.querySelector('div[data-name="link"] input')
 
-  let setThumbnailButton = document.querySelector('a[id="set-post-thumbnail"]')
   let stores = document.querySelectorAll('li[id^="stores"]')
 
   title.value = deal.title
@@ -99,22 +107,6 @@ const PasteDeal = async () => {
   })
 
   await LoadImage(deal.mainImageB64, deal.title)
-  setThumbnailButton.click()
-
-  WaitUntilElementLoad('div[class*="attachments-wrapper"] li', function () {
-    document.querySelector('div[class*="attachments-wrapper"] li').click()
-    document.querySelector('div[class*="media-toolbar"] button').click()
-
-    let pastedAlertDiv = document.querySelector('div[id*="pastedAlertDiv"]')
-    pastedAlertDiv.hidden = false
-    setTimeout(() => { pastedAlertDiv.hidden = true }, 3000)
-  
-    console.log('Pasted Values => ')
-    console.log(deal)
-
-    pasteDealButton.disabled = true;
-    pasteDealButton.style = "border: 1px solid Gray; border-radius: 10px; width: 125px; height: 50px; background-color: #f6f6f6;"
-  }, 500)
 }
 
 const AddPasteDealButton = () => {

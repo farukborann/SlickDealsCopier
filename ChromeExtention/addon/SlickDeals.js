@@ -1,4 +1,4 @@
-let mainColum
+let mainColum, copyDealButton
 
 const SetCopiedDeal = async (deal) => {
   await chrome.storage.local.set({ copied_deal: deal })
@@ -63,6 +63,7 @@ const AddCopyDealButton = () => {
   alert.hidden = true
 
   let headDiv = mainColum.querySelector('div[id="headings"]>div')
+  if(!headDiv) return
   headDiv.appendChild(document.createElement('br'))
   headDiv.appendChild(copyDealButton)
   headDiv.appendChild(document.createElement('br'))
